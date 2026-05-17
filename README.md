@@ -1,3 +1,6 @@
+# ts3-anarchy-server-website-poilerplate
+TS3 anarchy server website boiler plate created by Claude AI 
+
 ## 2BCB: Das Echo der ungeschminkten Wahrheit
 
 **2BCB** ist kein gewöhnlicher Teamspeak-Server. Er ist ein radikaler Freiraum ohne Regeln, Gesetze oder Administratoren, die in dein Handeln eingreifen. Inspiriert durch die erbarmungslose Freiheit des legendären Minecraft-Servers *[URL=http://2b2t.org]2b2t.org[/URL]*, bricht 2BCB mit der Illusion von Ordnung und Sicherheit.
