@@ -1,0 +1,21 @@
+[Unit]
+Description=Simple Python Web Server (gateway)
+After=network.target
+
+[Service]
+Type=simple
+User=gateway
+Group=gateway
+WorkingDirectory=/home/gateway
+ExecStart=/usr/bin/python3 /home/gateway/server.py
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/gateway/www
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2BCB – Das Echo der ungeschminkten Wahrheit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Roboto:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red:       #cc0000;
+      --dark-red:  #8b0000;
+      --black:     #050505;
+      --dark:      #0f0f0f;
+      --mid:       #181818;
+      --card:      #1f1f1f;
+      --gray:      #888;
+      --light:     #ddd;
+      --white:     #f2f2f2;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Roboto', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise texture overlay ─────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: .035;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    /* ── Scanlines ─────────────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 9997;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,.10) 3px,
+        rgba(0,0,0,.10) 4px
+      );
+    }
+
+    /* ── Warning Banner ────────────────────────────────────── */
+    .warning-bar {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,.9);
+      border-bottom: 1px solid rgba(204,0,0,.5);
+      padding: .55rem 1rem;
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--red);
+      letter-spacing: .3em;
+      text-transform: uppercase;
+    }
+
+    /* ── HERO ───────────────────────────────────────────────── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center 30%;
+      filter: brightness(.18) saturate(.4) contrast(1.3);
+      z-index: 0;
+      will-change: transform;
+    }
+
+    .hero-vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,.85) 100%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 960px;
+      padding: 2rem;
+      padding-top: 4rem; /* offset for warning bar */
+    }
+
+    .mono-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      letter-spacing: .45em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 1.2rem;
+    }
+
+    /* ── Glitch Title ──────────────────────────────────────── */
+    .glitch {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(90px, 20vw, 200px);
+      line-height: .9;
+      color: var(--white);
+      position: relative;
+      display: inline-block;
+      text-shadow: 0 0 60px rgba(204,0,0,.4);
+      letter-spacing: .06em;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+    }
+
+    .glitch::before {
+      color: rgba(255,0,80,.75);
+      animation: glitch-a 5s infinite;
+      clip-path: inset(0 0 100% 0);
+    }
+
+    .glitch::after {
+      color: rgba(0,220,255,.5);
+      animation: glitch-b 5s infinite;
+      clip-path: inset(0 0 100% 0);
+      animation-delay: -2.5s;
+    }
+
+    @keyframes glitch-a {
+      0%,90%,100% { clip-path: inset(0 0 100% 0); transform: none; }
+      91%          { clip-path: inset(5%  0 60%  0); transform: translate(-3px, 1px); }
+      92%          { clip-path: inset(55% 0 15%  0); transform: translate( 3px,-1px); }
+      93%          { clip-path: inset(25% 0 45%  0); transform: translate(-2px, 2px); }
+      94%          { clip-path: inset(70% 0 5%   0); transform: translate( 2px,-2px); }
+      95%          { clip-path: inset(40% 0 35%  0); transform: translate(-3px, 0);  }
+      96%          { clip-path: inset(0 0 100% 0); transform: none; }
+    }
+
+    @keyframes glitch-b {
+      0%,88%,100% { clip-path: inset(0 0 100% 0); transform: none; }
+      89%          { clip-path: inset(20% 0 55% 0); transform: translate( 3px,-1px); }
+      90%          { clip-path: inset(60% 0 10% 0); transform: translate(-3px, 1px); }
+      91%          { clip-path: inset(10% 0 75% 0); transform: translate( 2px, 2px); }
+      92%          { clip-path: inset(0 0 100% 0);  transform: none; }
+    }
+
+    .hero-subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(13px, 2.2vw, 20px);
+      color: var(--red);
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      margin-top: 1.2rem;
+    }
+
+    .hero-tagline {
+      font-size: clamp(15px, 1.8vw, 19px);
+      color: var(--gray);
+      font-weight: 300;
+      margin-top: 1.4rem;
+      line-height: 1.7;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 2.5rem;
+      padding: .9rem 2.8rem;
+      border: 2px solid var(--red);
+      color: var(--white);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .9rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: color .3s;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--red);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform .3s ease;
+      z-index: -1;
+    }
+
+    .btn:hover { color: #fff; }
+    .btn:hover::before { transform: scaleX(1); transform-origin: left; }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.2);
+    }
+
+    .scroll-indicator span {
+      display: block;
+      width: 1px; height: 55px;
+      background: linear-gradient(to bottom, transparent, var(--red));
+      animation: drip 2.2s ease-in-out infinite;
+    }
+
+    @keyframes drip {
+      0%,100% { opacity: 0; transform: scaleY(0) translateY(-100%); }
+      50%      { opacity: 1; transform: scaleY(1) translateY(0); }
+    }
+
+    /* ── Shared section styles ─────────────────────────────── */
+    .section { padding: 7rem 2rem; }
+
+    .container { max-width: 1140px; margin: 0 auto; }
+
+    .section-eyebrow {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .45em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: .8rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: .95;
+      color: var(--white);
+      margin-bottom: 1.8rem;
+    }
+
+    .red-rule {
+      width: 52px; height: 2px;
+      background: var(--red);
+      margin-bottom: 2.2rem;
+    }
+
+    .red-rule.center { margin-left: auto; margin-right: auto; }
+
+    /* ── Reveal animation ──────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .75s ease, transform .75s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── PHILOSOPHY ────────────────────────────────────────── */
+    #philosophy {
+      background: var(--dark);
+      border-top: 1px solid rgba(204,0,0,.2);
+      border-bottom: 1px solid rgba(204,0,0,.2);
+    }
+
+    .phil-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    @media (max-width: 820px) {
+      .phil-grid { grid-template-columns: 1fr; gap: 3rem; }
+    }
+
+    .phil-text p {
+      color: var(--light);
+      line-height: 1.85;
+      margin-bottom: 1.4rem;
+      font-size: 1.02rem;
+    }
+
+    .phil-text p strong { color: var(--white); }
+
+    blockquote {
+      border-left: 3px solid var(--red);
+      padding: 1rem 1.5rem;
+      margin: 1.8rem 0;
+      background: rgba(204,0,0,.06);
+      font-style: italic;
+      color: var(--gray);
+      font-size: 1.08rem;
+      line-height: 1.7;
+    }
+
+    .phil-img-wrap {
+      position: relative;
+    }
+
+    .phil-img-wrap img {
+      width: 100%;
+      height: 480px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(.65) saturate(.35) contrast(1.4);
+    }
+
+    .phil-img-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      border: 2px solid rgba(204,0,0,.35);
+      pointer-events: none;
+    }
+
+    /* ── STATS BAR ─────────────────────────────────────────── */
+    .stats-bar {
+      background: var(--mid);
+      border-top: 1px solid rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      padding: 3rem 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 2rem;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: var(--red);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .3em;
+      color: var(--gray);
+      text-transform: uppercase;
+      margin-top: .4rem;
+    }
+
+    /* ── FEATURES ──────────────────────────────────────────── */
+    #features { background: var(--black); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.8rem;
+      margin-top: 3.5rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      padding: 2.4rem 2rem;
+      border: 1px solid rgba(255,255,255,.05);
+      position: relative;
+      transition: border-color .3s, transform .3s;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 44px; height: 3px;
+      background: var(--red);
+      transition: width .4s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(204,0,0,.4);
+      transform: translateY(-5px);
+    }
+
+    .feature-card:hover::before { width: 100%; }
+
+    .feature-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+
+    .feature-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.9rem;
+      letter-spacing: .05em;
+      color: var(--white);
+      margin-bottom: .7rem;
+    }
+
+    .feature-text {
+      color: var(--gray);
+      line-height: 1.75;
+      font-size: .95rem;
+    }
+
+    /* ── PARALLAX QUOTE ────────────────────────────────────── */
+    #mirror {
+      position: relative;
+      padding: 9rem 2rem;
+      overflow: hidden;
+    }
+
+    .mirror-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&q=80&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      filter: brightness(.1) saturate(.2) contrast(1.6);
+      z-index: 0;
+    }
+
+    .mirror-overlay {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, rgba(100,0,0,.15) 0%, rgba(0,0,0,.6) 100%);
+      z-index: 1;
+    }
+
+    .mirror-content {
+      position: relative;
+      z-index: 2;
+      max-width: 820px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .mirror-question {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(28px, 5vw, 58px);
+      line-height: 1.2;
+      color: var(--white);
+      margin-bottom: 2rem;
+    }
+
+    .mirror-question em {
+      color: var(--red);
+      font-style: normal;
+    }
+
+    .mirror-sub {
+      color: var(--gray);
+      line-height: 1.8;
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .mirror-sub strong { color: var(--white); }
+
+    /* ── GALLERY ───────────────────────────────────────────── */
+    #gallery {
+      background: var(--dark);
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 240px 240px;
+      gap: 4px;
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 700px) {
+      .gallery-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .gallery-item:first-child {
+      grid-row: span 2;
+    }
+
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: brightness(.55) saturate(.25) contrast(1.4);
+      transition: filter .5s ease, transform .5s ease;
+      display: block;
+    }
+
+    .gallery-item:hover img {
+      filter: brightness(.75) saturate(.5) contrast(1.2);
+      transform: scale(1.04);
+    }
+
+    .gallery-item::after {
+      content: '';
+      position: absolute; inset: 0;
+      border: 1px solid rgba(204,0,0,.2);
+      pointer-events: none;
+    }
+
+    /* ── CONNECT ───────────────────────────────────────────── */
+    #connect { background: var(--black); }
+
+    .connect-inner {
+      max-width: 680px;
+      margin: 2.5rem auto 0;
+      background: var(--mid);
+      border: 1px solid rgba(204,0,0,.28);
+      padding: 3rem 2.5rem;
+      text-align: center;
+    }
+
+    .ts-address {
+      display: inline-block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(18px, 3.5vw, 30px);
+      color: var(--red);
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(204,0,0,.35);
+      padding: .9rem 2rem;
+      margin: 1.5rem 0 .4rem;
+      cursor: pointer;
+      letter-spacing: .1em;
+      transition: background .25s;
+      user-select: all;
+    }
+
+    .ts-address:hover { background: rgba(204,0,0,.12); }
+
+    .copy-hint {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .25em;
+      color: rgba(255,255,255,.2);
+      text-transform: uppercase;
+    }
+
+    #copy-confirm {
+      display: none;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--red);
+      letter-spacing: .2em;
+      margin-top: .4rem;
+    }
+
+    .connect-desc {
+      color: var(--gray);
+      line-height: 1.75;
+      margin-top: 1.2rem;
+      font-size: .95rem;
+    }
+
+    .ts-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.09);
+      padding: .35rem .9rem;
+      font-size: 11px;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--gray);
+      letter-spacing: .1em;
+      margin-bottom: .5rem;
+    }
+
+    /* ── FOOTER ────────────────────────────────────────────── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid rgba(255,255,255,.05);
+      padding: 4rem 2rem 3rem;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      letter-spacing: .12em;
+      color: var(--white);
+    }
+
+    .footer-logo span { color: var(--red); }
+
+    .footer-domain {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .4em;
+      color: rgba(255,255,255,.2);
+      text-transform: uppercase;
+      margin-top: .3rem;
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 2rem 0 2.5rem;
+    }
+
+    .footer-nav a {
+      color: rgba(255,255,255,.25);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      font-family: 'Share Tech Mono', monospace;
+      transition: color .2s;
+    }
+
+    .footer-nav a:hover { color: var(--red); }
+
+    .footer-copy {
+      color: rgba(255,255,255,.1);
+      font-size: 11px;
+      letter-spacing: .05em;
+    }
+
+    /* ── Responsive tweaks ─────────────────────────────────── */
+    @media (max-width: 600px) {
+      .section { padding: 5rem 1.2rem; }
+      .connect-inner { padding: 2rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Warning Banner -->
+  <div class="warning-bar">
+    ⚠&nbsp;&nbsp;Du betrittst auf eigene Gefahr&nbsp;&nbsp;//&nbsp;&nbsp;Kein Safe-Space&nbsp;&nbsp;//&nbsp;&nbsp;Keine Admins&nbsp;&nbsp;//&nbsp;&nbsp;Absolute Freiheit&nbsp;&nbsp;⚠
+  </div>
+
+  <!-- ═══ HERO ═══════════════════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-vignette"></div>
+
+    <div class="hero-content">
+      <p class="mono-label">Teamspeak &nbsp;·&nbsp; Anarchie &nbsp;·&nbsp; Wahrheit</p>
+      <h1 class="glitch" data-text="2BCB">2BCB</h1>
+      <p class="hero-subtitle">Das Echo der ungeschminkten Wahrheit</p>
+      <p class="hero-tagline">
+        Kein Safe-Space. Keine Admins. Keine Regeln.<br>
+        Nur dein wahres, ungeschminktes Ich.
+      </p>
+      <a href="ts3server://2bcb.com" class="btn">Server betreten</a>
+    </div>
+
+    <div class="scroll-indicator">
+      <span></span>
+    </div>
+  </section>
+
+  <!-- ═══ PHILOSOPHY ════════════════════════════════════════ -->
+  <section class="section" id="philosophy">
+    <div class="container">
+      <div class="phil-grid">
+
+        <div class="phil-text reveal">
+          <p class="section-eyebrow">Die Philosophie</p>
+          <h2 class="section-title">Die Philosophie<br>des Abgrunds</h2>
+          <div class="red-rule"></div>
+
+          <p>
+            <strong>2BCB</strong> ist kein gewöhnlicher TeamSpeak-Server.
+            Er ist ein radikaler Freiraum ohne Regeln, Gesetze oder Administratoren,
+            die in dein Handeln eingreifen – inspiriert durch die erbarmungslose
+            Freiheit des legendären Minecraft-Servers <strong>2b2t.org</strong>.
+          </p>
+          <p>
+            In einer Welt voller Regeln ist der Mensch nur deshalb <strong>„gut"</strong>,
+            weil er die Strafe fürchtet. Erst in der totalen Anarchie – dort, wo kein
+            religiöses Verhaltenskorsett und kein moralischer Zeigefinger existieren –
+            offenbart sich das <strong>wahre Gesicht</strong> eines Individuums.
+          </p>
+
+          <blockquote>
+            „Die Anarchie ist die am meisten gefürchtete Gesellschaftsform,
+            weil sie so unerbittlich ist wie die Wahrheit selbst."
+          </blockquote>
+
+          <p>
+            Hier regiert nicht das Gesetz, sondern die <strong>wahre Herzenshaltung</strong>.
+            2BCB ist der Spiegel, in dem die Gesellschaft ihr ungeschminktes Ich erkennt.
+            Wer bist du, wenn niemand mehr sagen kann, was du zu lassen hast?
+          </p>
+        </div>
+
+        <div class="phil-img-wrap reveal">
+          <img
+            src="images/Gemini_Generated_Image_p31v7p31v7p31v7p.png"
+            alt="Dunkle Berglandschaft"
+          >
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STATS BAR ════════════════════════════════════════ -->
+  <div class="stats-bar">
+    <div class="stats-grid">
+      <div class="reveal">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Admins</div>
+      </div>
+      <div class="reveal">
+        <div class="stat-num">0</div>
+        <div class="stat-label">Regeln</div>
+      </div>
+      <div class="reveal">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Freiheit</div>
+      </div>
+      <div class="reveal">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Authentizität</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FEATURES ══════════════════════════════════════════ -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-eyebrow">Was dich erwartet</p>
+        <h2 class="section-title">Das Experiment<br>Mensch</h2>
+        <div class="red-rule"></div>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <span class="feature-icon">⚡</span>
+          <h3 class="feature-title">Absolute Freiheit</h3>
+          <p class="feature-text">
+            Keine Chat-Regeln, keine Verhaltensvorschriften, kein Safe-Space.
+            Hier zählt nur, wer du wirklich bist – nicht die Maske,
+            die du der Gesellschaft zeigst.
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <span class="feature-icon">👁</span>
+          <h3 class="feature-title">Echte Hierarchien</h3>
+          <p class="feature-text">
+            Macht entsteht hier organisch – durch Charisma, Willen und nackte Präsenz.
+            Nicht durch vergebene Server-Ränge oder Admin-Willkür.
+            Nur die Stärksten setzen sich durch.
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <span class="feature-icon">🔥</span>
+          <h3 class="feature-title">Das wahre Ich</h3>
+          <p class="feature-text">
+            Erlebe die Evolution einer digitalen Gesellschaft im Zustand totaler Entfesselung.
+            Was bleibt vom Menschen, wenn die Zivilisation ihre
+            Maske ablegt?
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <span class="feature-icon">💀</span>
+          <h3 class="feature-title">Keine Scheinheiligkeit</h3>
+          <p class="feature-text">
+            In klassischen Gesellschaftsformen ist Scheinheiligkeit das Schmiermittel
+            des Alltags. Bei 2BCB gibt es keinen Platz für die Scharade der Zivilisation.
+            Willkommen in der Wirklichkeit.
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <span class="feature-icon">🌐</span>
+          <h3 class="feature-title">Inspiriert von 2b2t</h3>
+          <p class="feature-text">
+            Wie <strong style="color:var(--white)">2b2t.org</strong> – der älteste
+            anarchistischste Minecraft-Server der Welt – bricht 2BCB mit der
+            Illusion von Ordnung und Sicherheit. Der Unterschied: Es ist deine Stimme.
+          </p>
+        </div>
+
+        <div class="feature-card reveal">
+          <span class="feature-icon">🎙</span>
+          <h3 class="feature-title">TeamSpeak 3 &amp; 5</h3>
+          <p class="feature-text">
+            Erreichbar über den klassischen TeamSpeak 3 Client sowie den modernen
+            TeamSpeak 5 Client. Ein Klick, und du bist mitten im Experiment.
+            Adresse: <strong style="color:var(--red)">2bcb.com</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GALLERY ═══════════════════════════════════════════ -->
+  <section class="section" id="gallery">
+    <div class="container">
+      <div class="reveal">
+        <p class="section-eyebrow">Atmosphäre</p>
+        <h2 class="section-title">Der Geist<br>von 2BCB</h2>
+        <div class="red-rule"></div>
+
+      </div>
+
+      <div class="gallery-grid reveal">
+        <div class="gallery-item">
+          <img src="images/Gemini_Generated_Image_54ek954ek954ek95.png" alt="Dramatischer Gebirgspass">
+        </div>
+        <div class="gallery-item">
+          <img src="images/Gemini_Generated_Image_9q62yq9q62yq9q62.png" alt="Nebelwald">
+        </div>
+        <div class="gallery-item">
+          <img src="images/Gemini_Generated_Image_gc3klmgc3klmgc3k.png" alt="Dunkle Straße">
+        </div>
+        <div class="gallery-item">
+          <img src="images/Gemini_Generated_Image_ukmtqbukmtqbukmt.png" alt="Stürmischer Ozean">
+        </div>
+        <div class="gallery-item">
+          <img src="images/Gemini_Generated_Image_7kly9k7kly9k7kly.png" alt="Nachtstadt-Skyline">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MIRROR / PARALLAX QUOTE ══════════════════════════ -->
+  <section id="mirror">
+    <div class="mirror-bg"></div>
+    <div class="mirror-overlay"></div>
+
+    <div class="mirror-content reveal">
+      <p class="section-eyebrow" style="text-align:center; margin: 0 auto 1rem;">Die Frage</p>
+      <p class="mirror-question">
+        Bist du bereit,<br>deine <em>Maske</em> abzulegen?<br>
+        Oder hast du <em>Angst</em> davor,<br>
+        was du im Spiegel von 2BCB finden wirst?
+      </p>
+      <div class="red-rule center"></div>
+      <p class="mirror-sub">
+        Inspiriert durch die legendäre Anarchie von
+        <strong>2b2t.org</strong> – dem ältesten anarchistischen
+        Minecraft-Server der Welt. Kein Ort für schwache Gemüter.
+        Kein Platz für Heuchler.
+      </p>
+      <a href="ts3server://2bcb.com" class="btn" style="margin-top:2.5rem;">Ich bin bereit</a>
+    </div>
+  </section>
+
+  <!-- ═══ CONNECT ════════════════════════════════════════════ -->
+  <section class="section" id="connect">
+    <div class="container">
+      <div class="reveal" style="text-align:center;">
+        <p class="section-eyebrow">Verbinden</p>
+        <h2 class="section-title">Server beitreten</h2>
+        <div class="red-rule center"></div>
+      </div>
+
+      <div class="connect-inner reveal">
+        <div class="ts-badge">🎙 &nbsp; TeamSpeak 3 &amp; 5 kompatibel</div>
+        <br>
+        <div class="ts-address" id="tsAddr" onclick="copyAddr()" title="Klicken zum Kopieren">2bcb.com</div>
+        <p class="copy-hint">← Klicken zum Kopieren</p>
+        <p id="copy-confirm">✓ &nbsp; Adresse kopiert!</p>
+        <p class="connect-desc">
+          Trage die Adresse manuell in deinen TeamSpeak-Client ein,
+          oder klicke auf „Direkt verbinden", um den Client automatisch zu starten.
+        </p>
+        <a href="ts3server://2bcb.com" class="btn" style="margin-top:1.8rem;">Direkt verbinden</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═════════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-logo">2<span>BCB</span></div>
+    <p class="footer-domain">Das Echo der ungeschminkten Wahrheit &nbsp;//&nbsp; 2bcb.com</p>
+
+    <nav class="footer-nav">
+      <a href="#philosophy">Philosophie</a>
+      <a href="#features">Features</a>
+      <a href="#gallery">Atmosphäre</a>
+      <a href="#connect">Verbinden</a>
+      <a href="ts3server://2bcb.com">TeamSpeak</a>
+    </nav>
+
+    <p class="footer-copy">
+      &copy; 2025 2bcb.com &nbsp;—&nbsp;
+      Kein Freiraum für Heuchler. Alle Rechte vorbehalten und gleichzeitig vollkommen bedeutungslos.
+    </p>
+  </footer>
+
+  <script>
+    // ── Scroll reveal ───────────────────────────────────────
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.closest('.features-grid, .gallery-grid, .stats-grid')
+            ? [...entry.target.parentElement.children].indexOf(entry.target) * 90
+            : 0;
+          setTimeout(() => entry.target.classList.add('visible'), delay);
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // ── Parallax hero ───────────────────────────────────────
+    const heroBg = document.getElementById('heroBg');
+    window.addEventListener('scroll', () => {
+      if (heroBg) {
+        heroBg.style.transform = `translateY(${window.scrollY * 0.38}px)`;
+      }
+    }, { passive: true });
+
+    // ── Copy TS address ─────────────────────────────────────
+    function copyAddr() {
+      navigator.clipboard.writeText('2bcb.com').then(() => {
+        const msg = document.getElementById('copy-confirm');
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 2800);
+      }).catch(() => {
+        // Fallback for older browsers
+        const el = document.getElementById('tsAddr');
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      });
+    }
+
+    // ── Periodic glitch trigger ─────────────────────────────
+    const glitchEl = document.querySelector('.glitch');
+    if (glitchEl) {
+      setInterval(() => {
+        glitchEl.style.animation = 'none';
+        void glitchEl.offsetWidth; // reflow
+        glitchEl.style.animation = '';
+      }, 7000);
+    }
+  </script>
+</body>
+</html>
